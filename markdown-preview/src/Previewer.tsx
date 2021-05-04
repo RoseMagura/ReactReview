@@ -1,8 +1,10 @@
 import marked from "marked";
 import dompurify from "dompurify";
 import { useSelector } from "react-redux";
+import { RootState } from './store';
+import React from 'react';
 
-export const selectText = (state) => state.text;
+export const selectText = (state: RootState) => state.text;
 
 marked.setOptions({
   breaks: true
@@ -10,9 +12,7 @@ marked.setOptions({
 
 export const Previewer = () => {
   const raw = useSelector(selectText);
-  const markdown = marked(raw);
-
-  console.log(markdown);
+  const markdown = marked(String(raw));
 
   const purified = dompurify.sanitize(markdown);
 

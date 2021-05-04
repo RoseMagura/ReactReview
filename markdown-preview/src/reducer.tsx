@@ -1,4 +1,7 @@
-const initialState = {
+import { PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from './store';
+
+const initialState: MarkdownState = {
   text: `
   # Welcome to my React Markdown Previewer!
 
@@ -47,7 +50,11 @@ And here. | Okay. | I think we get it.
 
 export const CHANGE_TEXT = "CHANGE_TEXT";
 
-export const appReducer = (state = initialState, action) => {
+type MarkdownState = {
+  text: void | string
+}
+
+export const appReducer = (state = initialState, action: PayloadAction): MarkdownState => {
   switch (action.type) {
     case CHANGE_TEXT:
       return {
