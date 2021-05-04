@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
 export const Quote = () => {
     const quotes = [
