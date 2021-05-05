@@ -1,4 +1,4 @@
-import { Table, Column, Model, HasOne } from 'sequelize-typescript'
+import { Table, Column, Model } from 'sequelize-typescript'
 
 @Table
 export default class Quote extends Model {
@@ -7,6 +7,4 @@ export default class Quote extends Model {
 
   @Column
   author!: string
-//   @HasOne(() => Author)
-//   author: Author
 }

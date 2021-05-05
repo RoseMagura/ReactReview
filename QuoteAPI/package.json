@@ -1,7 +1,7 @@
 {
   "name": "quotes-api",
   "scripts": {
-    "dev": "tsc-watch --onSuccess \"node ./dist/server.js\"",
+    "dev": "tsc-watch --onSuccess \"node ./dist/src/server.js\"",
     "build": "tsc --project ./"
   },
   "dependencies": {
