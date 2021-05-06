@@ -3,6 +3,7 @@ import { useState } from "react";
 import { selectText } from "./Previewer";
 import { CHANGE_TEXT } from "./reducer";
 import React from 'react';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export const Editor = () => {
   const [currText, setText] = useState(useSelector(selectText));
@@ -19,7 +20,7 @@ export const Editor = () => {
   return (
     <div>
       <h1>Enter Text Here:</h1>
-      <textarea
+      <TextareaAutosize
         id="editor"
         value={String(currText)}
         onChange={(event) => handleChange(event.target.value)}
