@@ -17,7 +17,7 @@ app.listen(Number(port), host, async(): Promise<void> => {
 
 
 app.get('/', (req: Request, res: Response): void => {
-  res.send('Send a request to /id or /random');
+  res.json('Send a request to /id or /random');
 });
 
 // get quote by id
