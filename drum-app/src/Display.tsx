@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Display = (props: { message: string }) => {
   return (
     <div id="display">

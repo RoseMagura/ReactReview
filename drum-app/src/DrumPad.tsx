@@ -1,3 +1,5 @@
+import React from 'react';
+
 const DrumPad = (props: { value: string }) => {
     const types: { [key: string]: string } = {
         Q: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3',
@@ -17,7 +19,7 @@ const DrumPad = (props: { value: string }) => {
     };
 
     return (
-        <div className="drum-pad" onClick={playAudio} id={`main${props.value}`}>
+        <div className="drum-pad" onClick={playAudio} id={`main${props.value}`} style={{backgroundColor: 'red'}}>
             <h2>
                 <audio
                     id={props.value}
@@ -29,4 +31,5 @@ const DrumPad = (props: { value: string }) => {
         </div>
     );
 };
+
 export default DrumPad;

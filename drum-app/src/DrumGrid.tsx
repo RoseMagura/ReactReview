@@ -25,12 +25,28 @@ const DrumGrid = () => {
     setMessage(types[letter]);
   };
 
+  const handleKeyPress = (
+    event: React.KeyboardEvent
+  ) => {
+    const keyPressed = event.key.toUpperCase(); 
+    if(types[keyPressed]){
+      const element = document.getElementById(`main${keyPressed}`);
+      element?.dispatchEvent(new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        buttons: 1
+    }
+    ));
+    }
+  }
+
   return (
-    <div>
+    <div tabIndex={0} onKeyDown={handleKeyPress}>
       <h1>DrumGrid</h1>
       <div>
         {keys.map((key) => (
-          <div key={key} onClick={(event) => onChange(event, key)}>
+          <div id={`${key}-outer`} key={key} onClick={(event) => onChange(event, key)}>
             <DrumPad value={key} />
           </div>
         ))}
