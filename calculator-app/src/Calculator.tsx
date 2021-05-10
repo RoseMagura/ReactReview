@@ -2,20 +2,30 @@ import { useState } from 'react';
 import { Button } from '@material-ui/core';
 
 export const Calculator = () => {
-    const [currVal, setVal] = useState(0);
+    const [displayString, setDisplayString] = useState('0');
+    const [calcArr, setCalcArr] = useState(['']);
 
     const inputNum = (val: number) => {
-        currVal === 0
-            ? setVal(val)
-            : !(val === 0 && currVal === 0) && setVal(parseInt(currVal + String(val)));
+        displayString === '0'
+            ? setDisplayString(String(val))
+            : !(val === 0 && displayString === '0') && setDisplayString(displayString + String(val));
     }
 
     const clearDisplay = () => {
-        setVal(0);
+        setDisplayString('0');
     }
 
     const addDecimal = () => {
-        console.log('adding decimal');
+        const newVal = displayString + '.';
+        !displayString.includes('.') && setDisplayString(newVal);
+    }
+
+    const appendSymbol = (symbol: string) => {
+        displayString[displayString.length - 1] !== symbol && setDisplayString(displayString + symbol);
+    }
+
+    const calculate = () => {
+        console.log('calculating', displayString);
     }
 
     const createGrid = () => {
@@ -35,15 +45,15 @@ export const Calculator = () => {
     const numGrid = createGrid();
     return (
         <div>
-            <h2 id='display'>{currVal}</h2>
+            <h2 id='display'>{displayString}</h2>
             <Button id='clear' onClick={clearDisplay}>AC</Button>
-            <Button id='divide'>/</Button>
-            <Button id='multiply'>X</Button>
+            <Button id='divide' onClick={event => appendSymbol('/')}>/</Button>
+            <Button id='multiply' onClick={event => appendSymbol('*')}>X</Button>
             {numGrid}
             <Button id='decimal' onClick={addDecimal}>.</Button>
-            <Button id='subtract'>-</Button>
-            <Button id='add'>+</Button>
-            <Button id='equals'>=</Button>
+            <Button id='subtract' onClick={event => appendSymbol('-')}>-</Button>
+            <Button id='add' onClick={event => appendSymbol('+')}>+</Button>
+            <Button id='equals' onClick={calculate}>=</Button>
         </div>
     )
 }
