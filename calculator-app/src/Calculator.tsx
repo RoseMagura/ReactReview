@@ -7,18 +7,29 @@ export const Calculator = () => {
     const [secondNum, setSecondNum] = useState('');
     const [operator, setOperator] = useState('');
     const [total, setTotal] = useState(0);
+    const [consec, setConsec] = useState(0);
+    const [negative, setNegative] = useState(false);
 
     const inputNum = (val: number) => {
+        setConsec(0);
         if (val === 0 && displayString === '0') {
-            console.log('duplicate zeroes');
             return;
         } 
         if(operator === ''){
-            console.log('setting first number');
+            if(negative){
+                setDisplayString('-' + firstNum.concat(String(val)));
+                setFirstNum('-' + firstNum.concat(String(val)));
+                setNegative(false);
+                return;
+            }
             setDisplayString(firstNum.concat(String(val)));
             setFirstNum(firstNum.concat(String(val)));
         } else {
-            console.log('setting second num');
+            if(negative){
+                setDisplayString(firstNum + operator + '-' + secondNum.concat(String(val)))
+                setSecondNum('-' + secondNum.concat(String(val)));
+                return;
+            }
             setDisplayString(firstNum + operator + secondNum.concat(String(val)))
             setSecondNum(secondNum.concat(String(val)));
         }
@@ -30,9 +41,11 @@ export const Calculator = () => {
         setFirstNum('');
         setSecondNum('');
         setTotal(0);
+        setNegative(false);
     }
 
     const addDecimal = () => {
+        setConsec(0);
         if(operator === '' && !firstNum.includes('.')){
             setFirstNum(firstNum.concat('.'));
             setDisplayString(firstNum.concat('.'));
@@ -43,10 +56,25 @@ export const Calculator = () => {
     }
 
     const appendSymbol = (symbol: string) => {
+        if(symbol !== '-') {
+            setNegative(false);
+        }
+        if(consec > 0){
+            if(symbol === '-'){
+                setNegative(true);
+                return;
+            }
+            setOperator(symbol);
+            return;
+        }
+        if(operator !== ''){
+            calculate();
+        }
         displayString[displayString.length - 1] !== symbol 
             && setDisplayString(displayString + symbol);
         displayString[displayString.length - 1] !== symbol 
             && setOperator(symbol);    
+        setConsec(consec + 1);
     }
 
     const calculate = () => {
@@ -60,6 +88,7 @@ export const Calculator = () => {
                 const sum = parseFloat(firstNum) + parseFloat(secondNum);
                 setTotal(sum);
                 setDisplayString(String(sum));
+                setFirstNum(String(sum));
                 break;
             case '-':
                 if(firstNum === ''){
@@ -70,6 +99,7 @@ export const Calculator = () => {
                 const diff = parseFloat(firstNum) - parseFloat(secondNum);
                 setTotal(diff);
                 setDisplayString(String(diff));
+                setFirstNum(String(diff));
                 break;
             case '*':
                 if(firstNum === ''){
@@ -79,6 +109,7 @@ export const Calculator = () => {
                 const product = parseFloat(firstNum) * parseFloat(secondNum);
                 setTotal(product);
                 setDisplayString(String(product));
+                setFirstNum(String(product));
                 break;
             case '/':
                 if(firstNum === ''){
@@ -88,13 +119,13 @@ export const Calculator = () => {
                 const quotient = parseFloat(firstNum) / parseFloat(secondNum);
                 setTotal(quotient);
                 setDisplayString(String(quotient));
+                setFirstNum(String(quotient));
                 break;
             default:
                 alert('No operator selected');
                 break;
         }
         setOperator('');
-        setFirstNum('');
         setSecondNum('');
     }
 
@@ -116,7 +147,7 @@ export const Calculator = () => {
     return (
         <div>
             <h2 id='display'>{displayString}</h2>
-            <div>{total}</div>
+            <div>{firstNum} {operator} {secondNum} = {total}</div>
             <Button id='clear' onClick={clearDisplay}>AC</Button>
             <Button id='divide' onClick={event => appendSymbol('/')}>/</Button>
             <Button id='multiply' onClick={event => appendSymbol('*')}>X</Button>
