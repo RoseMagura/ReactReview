@@ -2,7 +2,7 @@ import * as express from "express";
 import * as cors from "cors";
 import * as dotenv from "dotenv";
 import { Request, Response } from "express";
-import { getById, getAll } from './initDB';
+import { getById, getAll, testConn } from './initDB';
 
 dotenv.config();
 const app: express.Application = express();
@@ -12,6 +12,7 @@ const port = process.env.PORT || 3000;
 const host = '0.0.0.0';
 
 app.listen(Number(port), host, async(): Promise<void> => {
+  await testConn();
   console.log(`App listening at http://${host}:${port}`);
 });
 
