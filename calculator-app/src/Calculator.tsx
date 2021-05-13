@@ -14,9 +14,9 @@ export const Calculator = () => {
         setConsec(0);
         if (val === 0 && displayString === '0') {
             return;
-        } 
-        if(operator === ''){
-            if(negative){
+        }
+        if (operator === '') {
+            if (negative) {
                 setDisplayString('-' + firstNum.concat(String(val)));
                 setFirstNum('-' + firstNum.concat(String(val)));
                 setNegative(false);
@@ -25,7 +25,7 @@ export const Calculator = () => {
             setDisplayString(firstNum.concat(String(val)));
             setFirstNum(firstNum.concat(String(val)));
         } else {
-            if(negative){
+            if (negative) {
                 setDisplayString(firstNum + operator + '-' + secondNum.concat(String(val)))
                 setSecondNum('-' + secondNum.concat(String(val)));
                 return;
@@ -46,41 +46,41 @@ export const Calculator = () => {
 
     const addDecimal = () => {
         setConsec(0);
-        if(operator === '' && !firstNum.includes('.')){
+        if (operator === '' && !firstNum.includes('.')) {
             setFirstNum(firstNum.concat('.'));
             setDisplayString(firstNum.concat('.'));
         } else if (!secondNum.includes('.')) {
             setSecondNum(secondNum.concat('.'));
-            setDisplayString(firstNum + secondNum.concat('.'));
+            setDisplayString(firstNum + operator + secondNum.concat('.'));
         }
     }
 
     const appendSymbol = (symbol: string) => {
-        if(symbol !== '-') {
+        if (symbol !== '-') {
             setNegative(false);
         }
-        if(consec > 0){
-            if(symbol === '-'){
+        if (consec > 0) {
+            if (symbol === '-') {
                 setNegative(true);
                 return;
             }
             setOperator(symbol);
             return;
         }
-        if(operator !== ''){
+        if (operator !== '') {
             calculate();
         }
-        displayString[displayString.length - 1] !== symbol 
+        displayString[displayString.length - 1] !== symbol
             && setDisplayString(displayString + symbol);
-        displayString[displayString.length - 1] !== symbol 
-            && setOperator(symbol);    
+        displayString[displayString.length - 1] !== symbol
+            && setOperator(symbol);
         setConsec(consec + 1);
     }
 
     const calculate = () => {
-        switch(operator){
+        switch (operator) {
             case '+':
-                if(firstNum === ''){
+                if (firstNum === '') {
                     const sum = 0 + parseFloat(secondNum);
                     setTotal(total + sum);
                     return;
@@ -91,7 +91,7 @@ export const Calculator = () => {
                 setFirstNum(String(sum));
                 break;
             case '-':
-                if(firstNum === ''){
+                if (firstNum === '') {
                     const diff = 0 - parseFloat(secondNum);
                     setTotal(total - diff);
                     return;
@@ -102,7 +102,7 @@ export const Calculator = () => {
                 setFirstNum(String(diff));
                 break;
             case '*':
-                if(firstNum === ''){
+                if (firstNum === '') {
                     setTotal(0);
                     return;
                 }
@@ -112,7 +112,7 @@ export const Calculator = () => {
                 setFirstNum(String(product));
                 break;
             case '/':
-                if(firstNum === ''){
+                if (firstNum === '') {
                     setTotal(0);
                     return;
                 }
@@ -147,15 +147,18 @@ export const Calculator = () => {
     return (
         <div>
             <h2 id='display'>{displayString}</h2>
-            <div>{firstNum} {operator} {secondNum} = {total}</div>
-            <Button id='clear' onClick={clearDisplay}>AC</Button>
-            <Button id='divide' onClick={event => appendSymbol('/')}>/</Button>
-            <Button id='multiply' onClick={event => appendSymbol('*')}>X</Button>
-            {numGrid}
-            <Button id='decimal' onClick={addDecimal}>.</Button>
-            <Button id='subtract' onClick={event => appendSymbol('-')}>-</Button>
-            <Button id='add' onClick={event => appendSymbol('+')}>+</Button>
-            <Button id='equals' onClick={calculate}>=</Button>
+            <div id='grid'>
+                <Button id='clear' onClick={clearDisplay}>AC</Button>
+                <Button id='divide' onClick={event => appendSymbol('/')}>/</Button>
+                <Button id='multiply' onClick={event => appendSymbol('*')}>X</Button>
+                <div id='number-grid'>
+                    {numGrid}
+                </div>
+                <Button id='decimal' onClick={addDecimal}>.</Button>
+                <Button id='subtract' onClick={event => appendSymbol('-')}>-</Button>
+                <Button id='add' onClick={event => appendSymbol('+')}>+</Button>
+                <Button id='equals' onClick={calculate}>=</Button>
+            </div>
         </div>
     )
 }
