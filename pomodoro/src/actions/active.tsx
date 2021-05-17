@@ -1,7 +1,8 @@
 export const SWITCH_ACTIVE = 'SWITCH_ACTIVE';
 
-export const toggleActive = () => {
+export const toggleActive = (switchingTo: string) => {
     return {
-        type: SWITCH_ACTIVE
+        type: SWITCH_ACTIVE,
+        payload: switchingTo
     };
 }

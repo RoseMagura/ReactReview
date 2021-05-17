@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from "../store";
+import { increaseSession, decreaseSession } from '../actions/session';
+
+export const selectSession = (state: RootState) => state.session;
 
 const SessionLength = () => {
-    const [sessionLen, setLen] = useState(25);
+    const sessionLen = useSelector(selectSession).length;
+    const dispatch = useDispatch();
 
     const increment = () => {
         if (sessionLen < 60) {
-            setLen(sessionLen + 1);
+            dispatch(increaseSession());
         }
     }
 
     const decrement = () => {
         if (sessionLen > 1) {
-            setLen(sessionLen - 1);
+            dispatch(decreaseSession());
         }
     }
     return (

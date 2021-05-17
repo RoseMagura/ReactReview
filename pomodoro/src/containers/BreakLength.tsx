@@ -2,7 +2,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from "../store";
 import { increaseBreak, decreaseBreak } from '../actions/break';
 
-const selectBreak = (state: RootState) => state.break;
+export const selectBreak = (state: RootState) => state.break;
 
 const BreakLength = () => {
     const { length } = useSelector(selectBreak);
