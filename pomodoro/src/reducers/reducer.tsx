@@ -1,8 +1,12 @@
-import { PayloadAction } from '@reduxjs/toolkit';
+import { combineReducers } from 'redux';
+import { activeReducer } from './activeReducer';
+import { sessionReducer } from './sessionReducer';
+import { breakReducer } from './breakReducer';
 
-export const rootReducer = (state = {}, action: PayloadAction) => {
-    switch (action.type) {
-        default:
-            return state;
-    }
-};
+const rootReducer = combineReducers({
+    session: sessionReducer,
+    active: activeReducer,
+    break: breakReducer
+});
+
+export default rootReducer;

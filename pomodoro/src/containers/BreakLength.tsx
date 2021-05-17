@@ -1,6 +1,13 @@
 import { useState } from "react";
+import { useSelector } from 'react-redux';
+import { RootState } from "../store";
+
+const selectBreak = (state: RootState) => state.break;
 
 const BreakLength = () => {
+    const fromStore = useSelector(selectBreak);
+    console.log(fromStore);
+
     const [breakLen, setLen] = useState(5);
 
     const increment = () => {
