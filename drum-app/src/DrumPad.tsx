@@ -14,7 +14,7 @@ const DrumPad = (props: { value: string }) => {
     };
 
     const playAudio = () => {
-        const audioEl: any = document.getElementById(props.value);
+        const audioEl = document.getElementById(props.value) as HTMLAudioElement;
         audioEl?.play().catch((e: unknown) => console.error(e));
     };
 
