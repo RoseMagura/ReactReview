@@ -4,6 +4,8 @@ import { toggleActive } from '../actions/active';
 import { selectBreak } from './BreakLength';
 import { selectSession } from './SessionLength';
 import { useEffect, useState } from 'react';
+import { restoreDefaultSession } from '../actions/session';
+import { restoreDefaultBreak } from '../actions/break';
 import SoundPlayer from './SoundPlayer';
 
 const selectActive = (state: RootState) => state.active;
@@ -20,26 +22,27 @@ const Active = () => {
 
     const dispatch = useDispatch();
 
-    useEffect(() => {
+    const setUp = () => {
         if (activeType === 'Session') {
             setCurrLength(sessionLength * 60); // in seconds
+            setDisplay(`${sessionLength}:00`);
         } else {
             setCurrLength(breakLength * 60);
+            setDisplay(`${breakLength}:00`);
         }
-    }, [activeType, sessionLength, breakLength]);
+    }
 
-    useEffect(() => {
-        setDisplay(convertSeconds(currLength));
-    }, [currLength]);
+    useEffect(setUp, [activeType, sessionLength, breakLength]);
 
     const reset = () => {
-        if (activeType === 'Session') {
-            setCurrLength(sessionLength * 60); // in seconds
-        } else {
-            setCurrLength(breakLength * 60);
-        }
+        setDisplay('00:00');
+        dispatch(restoreDefaultBreak());
+        dispatch(restoreDefaultSession());
+        setUp();
         toggleRunning(!running);
         timerId !== undefined && clearInterval(timerId);
+        const player = document.getElementById('beep') as HTMLAudioElement;
+        player?.load();
     }
 
     const toggle = () => {
@@ -70,9 +73,17 @@ const Active = () => {
             let count = 1;
             const timer = setInterval(() => {
                 let localLen = currLength - count;
-                setCurrLength(localLen);
+                // setCurrLength(localLen);
+                if (localLen < 10) {
+                    setDisplay(`00:0${localLen}`);
+                } else if (localLen < 60) {
+                    setDisplay(`00:${localLen}`);
+                } else {
+                    setDisplay(`${convertSeconds(localLen)}`);
+                }
                 count++;
             }, 1000);
+
             setTimerId(timer);
         }
         toggleRunning(!running);
@@ -84,11 +95,20 @@ const Active = () => {
     }
 
     // Stop automatically when session or break reaches 0:00
-    if (displayString === '0:00') {
+    if (displayString === '00:00') {
         timerId !== undefined && clearInterval(timerId);
         // Signal to start playing sound clip
         play();
         // TODO: Start new break or session accordingly
+        if (activeType === 'Session') {
+            // setCurrLength(sessionLength * 60); // in seconds
+            // setDisplay(`${sessionLength}:00`);
+            console.log('switching to break');
+        } else {
+            // setCurrLength(breakLength * 60);
+            // setDisplay(`${breakLength}:00`);
+            console.log('switching to session');
+        }
     }
 
     return (
