@@ -9,8 +9,6 @@ import SoundPlayer from './SoundPlayer';
 const selectActive = (state: RootState) => state.active;
 
 const Active = () => {
-    const path = require('../assets/beep.mp3');
-
     const { activeType } = useSelector(selectActive);
     const breakLength = useSelector(selectBreak).length;
     const sessionLength = useSelector(selectSession).length;
@@ -19,7 +17,6 @@ const Active = () => {
     const [running, toggleRunning] = useState(false);
     const [timerId, setTimerId] = useState<NodeJS.Timeout>();
     const [currLength, setCurrLength] = useState(25);
-    const [playSound, setPlay] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -86,19 +83,14 @@ const Active = () => {
         player?.play();
     }
 
-    // Stop automatically when session or break reaches 0
-    // TODO: Make sure 0:00
-    if (currLength === 0) {
-        console.log('reached zero');
+    // Stop automatically when session or break reaches 0:00
+    if (displayString === '0:00') {
         timerId !== undefined && clearInterval(timerId);
         // Signal to start playing sound clip
         play();
-
-        console.log('playing sound here');
         // TODO: Start new break or session accordingly
     }
 
-    useEffect(() => setPlay(true), []);
     return (
         <div>
             <h2 id='timer-label'>{activeType}</h2>
@@ -106,8 +98,7 @@ const Active = () => {
             <button id='start_stop' onClick={startStop}>Play / Pause</button>
             <button id='reset' onClick={reset}>Reset</button>
             <button onClick={toggle}>Toggle Session / Break</button>
-            <SoundPlayer play={playSound} />
-            {/* <audio id='beep' src={path.default} controls /> */}
+            <SoundPlayer />
         </div>
     )
 }
