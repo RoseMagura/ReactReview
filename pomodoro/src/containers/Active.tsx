@@ -18,7 +18,8 @@ const Active = () => {
     const [displayString, setDisplayString] = useState('');
     const [running, setRunning] = useState(false);
     const [timerId, setTimerId] = useState<NodeJS.Timeout>();
-    const [currLength, setCurrLength] = useState(25);
+    const [currLength, setCurrLength] = useState(1500);
+    const [isFirstSession, setIsFirstSession] = useState(true);
 
     const dispatch = useDispatch();
 
@@ -38,8 +39,9 @@ const Active = () => {
         dispatch(restoreDefaultBreak());
         dispatch(restoreDefaultSession());
         dispatch(toggleActive('Session'));
+        setIsFirstSession(true);
+        setCurrLength(1500);
         setDisplayString('25:00'); // Reset should return to 25:00 regardless of active type
-        setCurrLength(25);
         setRunning(false); // timer is paused after resetting
         if (timerId !== undefined) {
             clearInterval(timerId);
@@ -71,13 +73,14 @@ const Active = () => {
 
     const startStop = (clicked?: boolean) => {
         if (clicked && running) {
-            console.log('pausing');
+            console.log('pausing', timerId);
             if (timerId !== undefined) {
+                console.log('stopping timer')
                 clearInterval(timerId);
             }
         } else {
-            console.log('starting');
-            let count = 0;
+            console.log('starting', currLength);
+            let count = 1;
             const timer = setInterval(() => {
                 let localLen = currLength - count;
                 setCurrLength(localLen);
@@ -114,16 +117,26 @@ const Active = () => {
                 dispatch(toggleActive('Break'));
                 console.log('switching to break');
                 setRunning(false);
-                startStop();
+                setCurrLength(breakLength * 60);
             } else {
                 console.log('starting to switch');
                 setDisplayString(`${sessionLength}:00`);
                 dispatch(toggleActive('Session'));
                 console.log('switching to session');
-                startStop();
+                setCurrLength(sessionLength * 60);
             }
         }
     }, [displayString]);
+
+    useEffect(() => {
+        console.log(`switching to ${activeType} with length of ${currLength}`);
+        // prevent timer from automatically running for first time
+        if (!isFirstSession) {
+            startStop();
+        } else {
+            setIsFirstSession(false);
+        }
+    }, [activeType]);
 
     return (
         <div>
