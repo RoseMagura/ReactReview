@@ -22,7 +22,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.spec.js'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -44,6 +44,13 @@
     ]
   },
   "devDependencies": {
-    "@types/redux-logger": "^3.0.8"
+    "@babel/register": "^7.13.16",
+    "@types/chai": "^4.2.18",
+    "@types/mocha": "^8.2.2",
+    "@types/redux-logger": "^3.0.8",
+    "chai": "^4.3.4",
+    "jsdom": "^16.6.0",
+    "mocha": "^8.4.0",
+    "ts-node": "^10.0.0"
   }
 }

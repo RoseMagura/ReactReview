@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from "../store";
+import { RootState } from '../store';
 import { toggleActive } from '../actions/active';
 import { selectBreak } from './BreakLength';
 import { selectSession } from './SessionLength';
@@ -15,8 +15,8 @@ const Active = () => {
     const breakLength = useSelector(selectBreak).length;
     const sessionLength = useSelector(selectSession).length;
 
-    const [displayString, setDisplay] = useState('');
-    const [running, toggleRunning] = useState(false);
+    const [displayString, setDisplayString] = useState('');
+    const [running, setRunning] = useState(false);
     const [timerId, setTimerId] = useState<NodeJS.Timeout>();
     const [currLength, setCurrLength] = useState(25);
 
@@ -25,32 +25,37 @@ const Active = () => {
     const setUp = () => {
         if (activeType === 'Session') {
             setCurrLength(sessionLength * 60); // in seconds
-            setDisplay(`${sessionLength}:00`);
+            setDisplayString(`${sessionLength}:00`);
         } else {
             setCurrLength(breakLength * 60);
-            setDisplay(`${breakLength}:00`);
+            setDisplayString(`${breakLength}:00`);
         }
-    }
+    };
 
     useEffect(setUp, [activeType, sessionLength, breakLength]);
 
     const reset = () => {
-        setDisplay('00:00');
         dispatch(restoreDefaultBreak());
         dispatch(restoreDefaultSession());
-        setUp();
-        toggleRunning(!running);
-        timerId !== undefined && clearInterval(timerId);
+        dispatch(toggleActive('Session'));
+        setDisplayString('25:00'); // Reset should return to 25:00 regardless of active type
+        setCurrLength(25);
+        setRunning(false); // timer is paused after resetting
+        if (timerId !== undefined) {
+            clearInterval(timerId);
+        }
         const player = document.getElementById('beep') as HTMLAudioElement;
-        player?.load();
-    }
+        player?.load(); // prepare audio for next session
+    };
 
     const toggle = () => {
         reset();
-        activeType === 'Session'
-            ? dispatch(toggleActive('Break'))
-            : dispatch(toggleActive('Session'));
-    }
+        if (activeType === 'Session') {
+            dispatch(toggleActive('Break'));
+        } else {
+            dispatch(toggleActive('Session'));
+        }
+    };
 
     const convertSeconds = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
@@ -62,64 +67,77 @@ const Active = () => {
             formattedString += `${remainingSec}`;
         }
         return formattedString;
-    }
+    };
 
-    const startStop = () => {
-        if (running) {
+    const startStop = (clicked?: boolean) => {
+        if (clicked && running) {
+            console.log('pausing');
             if (timerId !== undefined) {
                 clearInterval(timerId);
             }
         } else {
-            let count = 1;
+            console.log('starting');
+            let count = 0;
             const timer = setInterval(() => {
                 let localLen = currLength - count;
-                // setCurrLength(localLen);
+                setCurrLength(localLen);
                 if (localLen < 10) {
-                    setDisplay(`00:0${localLen}`);
+                    setDisplayString(`00:0${localLen}`);
                 } else if (localLen < 60) {
-                    setDisplay(`00:${localLen}`);
+                    setDisplayString(`00:${localLen}`);
                 } else {
-                    setDisplay(`${convertSeconds(localLen)}`);
+                    setDisplayString(`${convertSeconds(localLen)}`);
                 }
                 count++;
             }, 1000);
-
             setTimerId(timer);
         }
-        toggleRunning(!running);
-    }
+        setRunning(!running);
+    };
 
     const play = () => {
         const player = document.getElementById('beep') as HTMLAudioElement;
         player?.play();
-    }
+    };
 
-    // Stop automatically when session or break reaches 0:00
-    if (displayString === '00:00') {
-        timerId !== undefined && clearInterval(timerId);
-        // Signal to start playing sound clip
-        play();
-        // TODO: Start new break or session accordingly
-        if (activeType === 'Session') {
-            // setCurrLength(sessionLength * 60); // in seconds
-            // setDisplay(`${sessionLength}:00`);
-            console.log('switching to break');
-        } else {
-            // setCurrLength(breakLength * 60);
-            // setDisplay(`${breakLength}:00`);
-            console.log('switching to session');
+    // Stop automatically when session or break reaches 00:00
+    useEffect(() => {
+        if (displayString === '00:00') {
+            // Signal to start playing sound clip
+            play();
+            if (timerId !== undefined) {
+                clearInterval(timerId);
+            }
+            // Start new break or session accordingly
+            if (activeType === 'Session') {
+                setDisplayString(`${breakLength}:00`);
+                dispatch(toggleActive('Break'));
+                console.log('switching to break');
+                setRunning(false);
+                startStop();
+            } else {
+                console.log('starting to switch');
+                setDisplayString(`${sessionLength}:00`);
+                dispatch(toggleActive('Session'));
+                console.log('switching to session');
+                startStop();
+            }
         }
-    }
+    }, [displayString]);
 
     return (
         <div>
-            <h2 id='timer-label'>{activeType}</h2>
-            <h2 id='time-left'>{displayString}</h2>
-            <button id='start_stop' onClick={startStop}>Play / Pause</button>
-            <button id='reset' onClick={reset}>Reset</button>
+            <h2 id="timer-label">{activeType}</h2>
+            <h2 id="time-left">{displayString}</h2>
+            <button id="start_stop" onClick={() => startStop(true)}>
+                Play / Pause
+            </button>
+            <button id="reset" onClick={reset}>
+                Reset
+            </button>
             <button onClick={toggle}>Toggle Session / Break</button>
             <SoundPlayer />
         </div>
-    )
-}
+    );
+};
 export default Active;

@@ -10,7 +10,6 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
@@ -19,9 +18,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "noImplicitAny": true,
+    "strict": true
   },
   "include": [
-    "src"
+    "src",
+    "tests"
   ],
+  "exclude": [
+    "./tests/",
+    "./node_modules/",
+    "./dist/"
+  ]
 }
