@@ -17,7 +17,7 @@ const Active = () => {
 
     const [displayString, setDisplayString] = useState('');
     const [running, setRunning] = useState(false);
-    const [timerId, setTimerId] = useState<NodeJS.Timeout>();
+    const [timerId, setTimerId] = useState<number>();
     const [currLength, setCurrLength] = useState(1500);
     const [isFirstSession, setIsFirstSession] = useState(true);
 
@@ -35,6 +35,7 @@ const Active = () => {
 
     useEffect(setUp, [activeType, sessionLength, breakLength]);
 
+    // Reset the timer and return to defaults 
     const reset = () => {
         dispatch(restoreDefaultBreak());
         dispatch(restoreDefaultSession());
@@ -50,6 +51,7 @@ const Active = () => {
         player?.load(); // prepare audio for next session
     };
 
+    // lets button switch between session or break on command
     const toggle = () => {
         reset();
         if (activeType === 'Session') {
@@ -59,6 +61,7 @@ const Active = () => {
         }
     };
 
+    // helper function to take care of converting seconds to a HH:MM string
     const convertSeconds = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSec = seconds % 60;
@@ -71,39 +74,40 @@ const Active = () => {
         return formattedString;
     };
 
+    // Stop the timer if it's running, or start it if it isn't
     const startStop = (clicked?: boolean) => {
         if (clicked && running) {
-            console.log('pausing', timerId);
+            setRunning(false);
             if (timerId !== undefined) {
-                console.log('stopping timer')
                 clearInterval(timerId);
             }
         } else {
-            console.log('starting', currLength);
             let count = 1;
-            const timer = setInterval(() => {
+            const timer = window.setInterval(() => {
                 let localLen = currLength - count;
                 setCurrLength(localLen);
                 if (localLen < 10) {
                     setDisplayString(`00:0${localLen}`);
                 } else if (localLen < 60) {
                     setDisplayString(`00:${localLen}`);
-                } else {
+                }
+                else {
                     setDisplayString(`${convertSeconds(localLen)}`);
                 }
                 count++;
-            }, 1000);
+            }, 10);
             setTimerId(timer);
+            setRunning(true);
         }
-        setRunning(!running);
     };
 
+    // play audio element on page
     const play = () => {
         const player = document.getElementById('beep') as HTMLAudioElement;
         player?.play();
     };
 
-    // Stop automatically when session or break reaches 00:00
+    // Switch between session or break when timer reaches 00:00
     useEffect(() => {
         if (displayString === '00:00') {
             // Signal to start playing sound clip
@@ -112,18 +116,19 @@ const Active = () => {
                 clearInterval(timerId);
             }
             // Start new break or session accordingly
+            setRunning(true);
             if (activeType === 'Session') {
-                setDisplayString(`${breakLength}:00`);
-                dispatch(toggleActive('Break'));
-                console.log('switching to break');
-                setRunning(false);
                 setCurrLength(breakLength * 60);
+                setTimeout(() => {
+                    setDisplayString(`${breakLength}:00`);
+                    dispatch(toggleActive('Break'));
+                }, 1000);
             } else {
-                console.log('starting to switch');
-                setDisplayString(`${sessionLength}:00`);
-                dispatch(toggleActive('Session'));
-                console.log('switching to session');
                 setCurrLength(sessionLength * 60);
+                setTimeout(() => {
+                    setDisplayString(`${sessionLength}:00`);
+                    dispatch(toggleActive('Session'));
+                }, 1000);
             }
         }
     }, [displayString]);
