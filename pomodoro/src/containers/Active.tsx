@@ -7,35 +7,47 @@ import { useEffect, useState } from 'react';
 import { restoreDefaultSession } from '../actions/session';
 import { restoreDefaultBreak } from '../actions/break';
 import SoundPlayer from './SoundPlayer';
+import accurateInterval from 'accurate-interval';
 
-const selectActive = (state: RootState) => state.active;
+export const selectActive = (state: RootState) => state.active;
 
 const Active = () => {
     const { activeType } = useSelector(selectActive);
     const breakLength = useSelector(selectBreak).length;
     const sessionLength = useSelector(selectSession).length;
-
+    // const sessionLength = .5; // FOR DEVELOPMENT ONLY
+    // const breakLength = .5;// FOR DEVELOPMENT ONLY
+  
     const [displayString, setDisplayString] = useState('');
     const [running, setRunning] = useState(false);
-    const [timerId, setTimerId] = useState<number>();
+    const [timerId, setTimerId] = useState<any>(); // TODO: EDIT HERE
     const [currLength, setCurrLength] = useState(1500);
     const [isFirstSession, setIsFirstSession] = useState(true);
+    const [prevVal, setPrevVal] = useState<number>();
 
     const dispatch = useDispatch();
 
     const setUp = () => {
         if (activeType === 'Session') {
             setCurrLength(sessionLength * 60); // in seconds
-            setDisplayString(`${sessionLength}:00`);
+            if (sessionLength < 10) {
+                setDisplayString(`0${sessionLength}:00`);
+            } else {
+                setDisplayString(`${sessionLength}:00`);
+            }
         } else {
+            if (breakLength < 10) {
+                setDisplayString(`0${breakLength}:00`);
+            } else {
+                setDisplayString(`${breakLength}:00`);
+            }
             setCurrLength(breakLength * 60);
-            setDisplayString(`${breakLength}:00`);
         }
     };
 
     useEffect(setUp, [activeType, sessionLength, breakLength]);
 
-    // Reset the timer and return to defaults 
+    // Reset the timer and return to defaults
     const reset = () => {
         dispatch(restoreDefaultBreak());
         dispatch(restoreDefaultSession());
@@ -45,7 +57,7 @@ const Active = () => {
         setDisplayString('25:00'); // Reset should return to 25:00 regardless of active type
         setRunning(false); // timer is paused after resetting
         if (timerId !== undefined) {
-            clearInterval(timerId);
+            timerId.clear();
         }
         const player = document.getElementById('beep') as HTMLAudioElement;
         player?.load(); // prepare audio for next session
@@ -66,6 +78,9 @@ const Active = () => {
         const minutes = Math.floor(seconds / 60);
         const remainingSec = seconds % 60;
         let formattedString = `${minutes}:`;
+        if (minutes < 10) {
+            formattedString = `0${minutes}:`;
+        }
         if (remainingSec < 10) {
             formattedString += `0${remainingSec}`;
         } else {
@@ -79,24 +94,24 @@ const Active = () => {
         if (clicked && running) {
             setRunning(false);
             if (timerId !== undefined) {
-                clearInterval(timerId);
+                timerId.clear();
             }
         } else {
             let count = 1;
-            const timer = window.setInterval(() => {
-                let localLen = currLength - count;
-                setCurrLength(localLen);
+            const accurateTimer = accurateInterval(() => {
+                const localLen = currLength - count;
                 if (localLen < 10) {
                     setDisplayString(`00:0${localLen}`);
                 } else if (localLen < 60) {
                     setDisplayString(`00:${localLen}`);
-                }
-                else {
+                } else {
                     setDisplayString(`${convertSeconds(localLen)}`);
                 }
+                setCurrLength(localLen);
+                setPrevVal(localLen + 1);
                 count++;
-            }, 10);
-            setTimerId(timer);
+            }, 1000, {aligned: true, immediate: true});
+            setTimerId(accurateTimer);
             setRunning(true);
         }
     };
@@ -109,7 +124,8 @@ const Active = () => {
 
     // Switch between session or break when timer reaches 00:00
     useEffect(() => {
-        if (displayString === '00:00') {
+        if (prevVal === 0) {
+            timerId.clear();
             // Signal to start playing sound clip
             play();
             if (timerId !== undefined) {
@@ -119,19 +135,46 @@ const Active = () => {
             setRunning(true);
             if (activeType === 'Session') {
                 setCurrLength(breakLength * 60);
-                setTimeout(() => {
-                    setDisplayString(`${breakLength}:00`);
-                    dispatch(toggleActive('Break'));
-                }, 1000);
+                setDisplayString(`${breakLength}:00`);
+                dispatch(toggleActive('Break'));
+                setPrevVal(breakLength * 60);
             } else {
                 setCurrLength(sessionLength * 60);
-                setTimeout(() => {
-                    setDisplayString(`${sessionLength}:00`);
-                    dispatch(toggleActive('Session'));
-                }, 1000);
+                setDisplayString(`${sessionLength}:00`);
+                dispatch(toggleActive('Session'));
+                setPrevVal(sessionLength * 60);
             }
         }
-    }, [displayString]);
+    }, [prevVal]);
+
+    // useEffect(() => {
+    //     // const time = convertSeconds(currLength);
+    //     // setDisplayString(time);
+
+    //     if(currLength === 0){
+    //         console.log('PLAYING');
+    //         // Signal to start playing sound clip
+    //         play();
+    //     // }
+
+    //     // if (currLength < 0) {
+    //         console.log('switching');
+    //         if (timerId !== undefined) {
+    //             timerId.clear();
+    //         }
+    //         // Start new break or session accordingly
+    //         setRunning(true);
+    //         if (activeType === 'Session') {
+    //             setCurrLength(breakLength * 60);
+    //             setDisplayString(`${breakLength}:00`);
+    //             dispatch(toggleActive('Break'));
+    //         } else {
+    //             setCurrLength(sessionLength * 60);
+    //             setDisplayString(`${sessionLength}:00`);
+    //             dispatch(toggleActive('Session'));
+    //         }
+    //     }
+    // }, [currLength]);
 
     useEffect(() => {
         console.log(`switching to ${activeType} with length of ${currLength}`);
@@ -147,6 +190,7 @@ const Active = () => {
         <div>
             <h2 id="timer-label">{activeType}</h2>
             <h2 id="time-left">{displayString}</h2>
+            <h2>{currLength}</h2>
             <button id="start_stop" onClick={() => startStop(true)}>
                 Play / Pause
             </button>

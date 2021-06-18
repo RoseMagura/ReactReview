@@ -28,4 +28,5 @@ const SessionLength = () => {
         </div>
     )
 }
+
 export default SessionLength;
