@@ -53,7 +53,7 @@ const Active = () => {
         timerRef.current = undefined;
     }
 
-    // TODO: Can't change length while timer is running
+    // TODO: Ensure that one can't change length while timer is running
     useEffect(() => {
         if (activeType === 'Session') {
             setSecondsLeft(sessionLength * 60);
@@ -84,6 +84,7 @@ const Active = () => {
         dispatch(toggleActive());
     };
 
+    // to switch between session and break
     useEffect(() => {
         if (secondsLeft !== 0) return;
         const player = document.getElementById('beep') as HTMLAudioElement;
@@ -96,6 +97,11 @@ const Active = () => {
         setTimeout(() => {
             setShouldStart(true);
             dispatch(toggleActive());
+            if (activeType === 'Session') {
+                setSecondsLeft(breakLength * 60);
+            } else {
+                setSecondsLeft(sessionLength * 60);
+            }
         }, 1000);
     }, [secondsLeft, dispatch]);
 
