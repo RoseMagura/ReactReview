@@ -7,6 +7,9 @@ import { useEffect, useState, useRef } from 'react';
 import { restoreDefaultSession } from '../actions/session';
 import { restoreDefaultBreak } from '../actions/break';
 import SoundPlayer from './SoundPlayer';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import Button from '@material-ui/core/Button';
+import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 
 export const selectActive = (state: RootState) => state.active;
 
@@ -53,12 +56,15 @@ const Active = () => {
         timerRef.current = undefined;
     }
 
-    // TODO: Ensure that one can't change length while timer is running
     useEffect(() => {
-        if (activeType === 'Session') {
-            setSecondsLeft(sessionLength * 60);
-        } else {
-            setSecondsLeft(breakLength * 60);
+        // Ensure that one can't change length while timer is running
+        if (timerRef.current === undefined) {
+            console.log('altering time');
+            if (activeType === 'Session') {
+                setSecondsLeft(sessionLength * 60);
+            } else {
+                setSecondsLeft(breakLength * 60);
+            }
         }
 
         if (shouldStart) {
@@ -109,19 +115,21 @@ const Active = () => {
         <div>
             <h2 id="timer-label">{activeType}</h2>
             <h2 id="time-left">{formatTime(secondsLeft)}</h2>
-            <button id="start_stop" onClick={() => {
-                if (typeof timerRef.current === 'number') {
-                    stop();
-                } else {
-                    start();
-                }
-            }}>
-                Play / Pause
-            </button>
-            <button id="reset" onClick={reset}>
-                Reset
-            </button>
-            <button onClick={toggle}>Toggle Session / Break</button>
+            <PlayCircleOutlineIcon
+                className='icon'
+                style={{fontSize: '40px'}}
+                id="start_stop" onClick={() => {
+                    if (typeof timerRef.current === 'number') {
+                        stop();
+                    } else {
+                        start();
+                    }
+                }}>
+            </PlayCircleOutlineIcon>
+            <RefreshIcon id='reset' onClick={reset} className='icon' 
+                style={{fontSize: '40px'}} /><br/>
+            <Button onClick={toggle} style={{ color: 'white', fontSize: '20px' }}>
+                Toggle Session / Break</Button>
             <SoundPlayer />
         </div>
     );

@@ -1,6 +1,8 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from "../store";
 import { increaseSession, decreaseSession } from '../actions/session';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 export const selectSession = (state: RootState) => state.session;
 
@@ -23,8 +25,10 @@ const SessionLength = () => {
         <div>
             <h2 id='session-label'>Session Length</h2>
             <div id='session-length'>{sessionLen}</div><br />
-            <button onClick={increment} id='session-increment'>Increment</button>
-            <button onClick={decrement} id='session-decrement'>Decrement</button>
+            <KeyboardArrowUpIcon onClick={increment} id='session-increment'
+                className='icon' style={{fontSize: '40px'}}/>
+            <KeyboardArrowDownIcon onClick={decrement} id='session-decrement'
+                className='icon' style={{fontSize: '40px'}}/>
         </div>
     )
 }

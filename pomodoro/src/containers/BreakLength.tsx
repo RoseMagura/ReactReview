@@ -1,6 +1,8 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from "../store";
 import { increaseBreak, decreaseBreak } from '../actions/break';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 export const selectBreak = (state: RootState) => state.break;
 
@@ -24,8 +26,10 @@ const BreakLength = () => {
         <div>
             <h2 id='break-label'>Break Length</h2>
             <div id='break-length'>{length}</div><br />
-            <button onClick={increment} id='break-increment'>Increment</button>
-            <button onClick={decrement} id='break-decrement'>Decrement</button>
+            <KeyboardArrowUpIcon onClick={increment} id='session-increment' 
+                className='icon' style={{fontSize: '40px'}}/>
+            <KeyboardArrowDownIcon onClick={decrement} id='session-decrement' 
+                className='icon' style={{fontSize: '40px'}}/>
         </div>
     )
 }
